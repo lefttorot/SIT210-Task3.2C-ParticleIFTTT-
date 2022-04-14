@@ -1,0 +1,28 @@
+#include "BH1750.h"
+
+BH1750 sensor(0x23, Wire);
+
+bool check = false;
+
+void setup()
+{
+    sensor.begin();
+
+    sensor.set_sensor_mode(BH1750::forced_mode_high_res2);
+}
+
+void loop()
+{
+    sensor.make_forced_measurement();
+
+    int level = sensor.get_light_level();
+    
+    if (level > 100 && !check){
+        Particle.publish("light-changed", "sun");
+        check = true;
+    }
+    else if (level < 100 && check){
+        Particle.publish("light-changed", "dark");
+        check = false;
+    }
+}
